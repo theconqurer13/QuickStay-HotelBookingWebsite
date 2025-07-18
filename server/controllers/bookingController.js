@@ -1,6 +1,6 @@
 import Booking from "../models/Booking.js"
 import Room from "../models/Room.js";
-
+import Hotel from "../models/Hotel.js";
 
 
     // Fucntion to check availability of room
@@ -71,6 +71,38 @@ export const createBooking = async (req,res)=>{
         res.json({success:true,message:"Booking Created Successfully"})
 
     } catch (error) {
+        console.log(error);
         res.json({success:false,message:"failed  create booking",error:error.message})
+    }
+};
+
+// API to get all bookings of a user
+// GET/api/bookings/user
+
+export const getUserBookings = async (req,res)=>{
+    try {
+        const user = req.user._id;
+        const bookings = await Booking.find({user}).populate("room hotel").sort({createdAt:-1});
+        res.json({success:true,bookings})
+    } catch (error) {
+        res.json({success:false,message:"failed to fetch bookings"});
+    }
+}
+
+export const getHotelBookings = async (req,res)=>{
+    try {
+        const hotel = await Hotel.findOne({owner:req.auth.userId});
+        if(!hotel){
+            return res.json({success:false,message:"Hotel not found"});
+        }
+
+        const booking = await Booking.find({hotel:hotel._id}).populate("room user").sort({createdAt:-1});
+        // Total Bookings
+        const totalBookings = booking.length;
+        // Total revenue
+        const totalRevenue = booking.reduce((acc,booking)=>acc + booking.totalPrice,0);
+        res.json({success:true,dashboardData:{totalBookings,totalRevenue,booking}});
+    } catch (error) {
+         res.json({success:false,message:"Failed to fetch bookings"})   
     }
 }
