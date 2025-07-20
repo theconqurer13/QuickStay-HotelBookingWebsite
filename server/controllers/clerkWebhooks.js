@@ -15,13 +15,14 @@ const clerkWebhooks = async (req, res) => {
 
         }
         // verifying headers
+
         await whook.verify(JSON.stringyfy(req.body),headers)
 
         // getting data from req body
         const {data,type} = req.body
         const userData = {
             _id:data.id,
-            email:data.email_addresses[0].email_addresses,
+            email:data.email_addresses[0].email_address,
             username:data.first_name + " " + data.last_name,
             image: data.image_url,
 
@@ -35,12 +36,12 @@ const clerkWebhooks = async (req, res) => {
             }
 
             case "user.updated":{
-                await User.findOneAndUpdate(data.id,userData);
+                await User.findByIdAndUpdate(data.id,userData);
                 break;
 
             }
             case "user.deleted":{
-                await User.findOneAndDelete(data.id);
+                await User.findByIdAndDelete(data.id);
                 break;
              }
 
