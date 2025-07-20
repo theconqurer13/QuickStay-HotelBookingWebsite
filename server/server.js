@@ -24,7 +24,10 @@ app.use(clerkMiddleware());
 
 // API to listen clerk webhook
 
-
+app.get('/', (req, res) => {
+    console.log("API IS RUNNING");
+    res.send("API IS RUNNING");
+});
 
 app.use("/api/clerk/webhooks",clerkrouter);
 
