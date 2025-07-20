@@ -2,9 +2,8 @@ import express from 'express';
 import "dotenv/config";
 import cors from 'cors';
 import connectDB from './config/db.js';
-import { clerkMiddleware } from '@clerk/express'
-import { ClerkExpressWithAuth } from "@clerk/clerk-sdk-node";
-// import clerkWebhooks from './controllers/clerkWebhooks.js';
+// This is the primary middleware you need from Clerk for Express
+import { clerkMiddleware } from '@clerk/express';
 import userRouter from './routes/userRoutes.js';
 import hotelRouter from './routes/hotelRoute.js';
 import connectCloudinary from './config/cloudinary.js';
@@ -12,30 +11,49 @@ import roomRouter from './routes/roomRoutes.js';
 import bookingRouter from './routes/bookingRoutes.js';
 import bodyParser from "body-parser";
 import clerkrouter from './routes/clerkRoutes.js';
+
+// Initialize Database and Cloudinary
 connectDB();
 connectCloudinary();
-const PORT =  3001;
+
+const PORT = process.env.PORT || 3001;
 const app = express();
+
+// IMPORTANT: This raw body parser for the webhook endpoint must come 
+// BEFORE express.json() and the clerkMiddleware()
 app.use("/api/clerk/webhooks", bodyParser.raw({ type: "*/*" }));
+
+// Enable CORS for all routes
 app.use(cors());
 
-// Middleware
+// Parse JSON bodies
 app.use(express.json());
-app.use(clerkMiddleware());
-app.use(ClerkExpressWithAuth());
-// API to listen clerk webhook
 
+// Use the Clerk middleware for authentication.
+// This will add the `req.auth` object to all incoming requests.
+// It should come after body-parser and cors, but before your routes.
+app.use(clerkMiddleware());
+
+// --- API Routes ---
+
+// A simple route to check if the server is running
 app.get('/', (req, res) => {
     console.log("API IS RUNNING");
     res.send("API IS RUNNING");
 });
 
-app.use("/api/clerk/webhooks",clerkrouter);
+// Clerk Webhook route
+app.use("/api/clerk/webhooks", clerkrouter);
 
-app.use('/api/user',userRouter);
-app.use('/api/hotels',hotelRouter);
-app.use('/api/rooms',roomRouter);
-app.use('/api/bookings',bookingRouter);
-app.listen(PORT,()=>{
-    console.log(`Server is running on port ${PORT}`)
+// Your application-specific routes
+// The `protect` middleware inside these routes will now work correctly
+app.use('/api/user', userRouter);
+app.use('/api/hotels', hotelRouter);
+app.use('/api/rooms', roomRouter);
+app.use('/api/bookings', bookingRouter);
+
+
+// Start the server
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
