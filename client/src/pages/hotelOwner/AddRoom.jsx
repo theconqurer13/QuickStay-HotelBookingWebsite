@@ -1,8 +1,13 @@
 import React, { useState } from 'react'
 import Title from '../../components/Title'
 import { assets } from '../../assets/assets'
+import { useAppContext } from '../../context/AppContext'
+import toast from 'react-hot-toast'
 
 const AddRoom = () => {
+
+    const {axios,getToken} = useAppContext();
+
     const [images,setImages] = useState({
         1:null,
         2:null,
@@ -20,16 +25,73 @@ const AddRoom = () => {
             'Pool Access':false
         }
     })
+
+    const [loading,setLoading] = useState(false);
+
+    const onSubmitHandler = async (e)=>{
+        e.preventDefault()
+        // check if all inputs are filled
+        if(!inputs.roomType || !inputs.pricePerNght || !inputs.amenities || !Object.values(images).some(image => image)){
+            toast.error("Please fill all the fields")
+        }
+        setLoading(true);
+        try {
+            const formData = new FormData()
+            formData.append('roomType',inputs.roomType)
+            formData.append('pricePerNght',inputs.pricePerNght)
+
+            // Converting amenities to Arrays & keeping only enabled amenities
+            const amenities = Object.keys(inputs.amenities).filter(key => inputs.amenities[key])
+            formData.append('amenities',JSON.stringify(amenities))
+            // Adding images to the form data
+            Object.keys(images).forEach((key)=>{
+                images[key] && formData.append(`images`,images[key])
+            })
+            
+            const {data} = await axios.post('/api/rooms',formData,{headers:{Authorization:`Bearer ${await getToken()}`}});
+
+            if(data.success){
+                toast.success(data.message);
+                setInputs({
+                    roomType:'',
+                    pricePerNght:0,
+                    amenities:{
+                        'Free Wi-Fi':false,
+                        'Free Brekfast':false,
+                        'Room Service':false,
+                        'Mountain View':false,
+                        'Pool Access':false
+                    }
+                })
+                setImages({1 : null,2 : null,3 : null,4:null})
+            }else{
+                toast.error(data.message)
+            }
+
+
+
+        } catch (error) {
+            toast.error(error.message)
+        }
+        finally{
+            setLoading(false)
+        }
+    }
+
+
+
+
+
   return (
-    <div>
-        <form >
+    
+        <form onSubmit={onSubmitHandler}>
             <Title align='left' font='outfit' title='Add Room' subTitle='Fill in the details carefully and accurate room details,pricing and amenities,to enhance he user booking experince'/>
             {/* {Upload area forimgaes} */}
             <p className='text-gray-800 mt-10'>Images</p>
             <div className='grid grid-cols-2 sm:flex gap-4 my-2 flex-wrap'>
                 {Object.keys(images).map((key)=>(
                     <label htmlFor={`roomImage${key}` } key={key}>
-                        <img src={images[key] ? URL.createObjectURL(images[key]) : assets.uploadArea} alt=""  className='mah-h-13 cursor-pointer opacity-80'/>
+                        <img src={images[key] ? URL.createObjectURL(images[key]) : assets.uploadArea} alt=""  className='max-h-25 object-cover rounded cursor-pointer opacity-80'/>
                         <input type="file" name="" id={`roomImage${key}`} accept='image/*' hidden onChange={
                             (e)=>(
                                 setImages({...images,[key]:e.target.files[0]})
@@ -54,9 +116,15 @@ const AddRoom = () => {
                 </div>
                 <div>
                     <p className=' text-gray-800'>Price <span className='text-xs'>/night</span></p>
-                    <input type="number" placeholder='0' className='border border-gray-300 mt-1 rounded p-2 w-24 ' value={inputs.pricePerNght} onChange={(e)=>(
-                        setInputs({...inputs,pricePerNght:e.target.valueAsNumber})
-                    )} />
+                    <input 
+                        type="number" 
+                        placeholder='0' 
+                        className='border border-gray-300 mt-1 rounded p-2 w-24' 
+                        value={isNaN(inputs.pricePerNght) ? '' : inputs.pricePerNght} 
+                        onChange={(e)=>(
+                            setInputs({...inputs, pricePerNght: e.target.valueAsNumber})
+                        )}
+                    />
                 </div>
             </div>
             <p className='text-gray-800 mt-4'>
@@ -72,11 +140,11 @@ const AddRoom = () => {
                         </div>  
                     ))}
             </div>
-            <button className='bg-[#2563EB] text-white px-8 rounded py-2 mt-8 cursor-pointer'>
+            <button className='bg-[#2563EB] text-white px-8 rounded py-2 mt-8 cursor-pointer' type='submit'>
                 Add Room
             </button>
         </form>
-    </div>
+    
   )
 }
 
