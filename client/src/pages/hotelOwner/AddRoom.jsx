@@ -16,7 +16,7 @@ const AddRoom = () => {
     })
     const [inputs,setInputs] =useState({
         roomType:'',
-        pricePerNght:0,
+        pricePerNight:0,
         amenities:{
             'Free Wi-Fi':false,
             'Free Brekfast':false,
@@ -38,7 +38,7 @@ const AddRoom = () => {
         try {
             const formData = new FormData()
             formData.append('roomType',inputs.roomType)
-            formData.append('pricePerNght',inputs.pricePerNght)
+            formData.append('pricePerNight',inputs.pricePerNight)
 
             // Converting amenities to Arrays & keeping only enabled amenities
             const amenities = Object.keys(inputs.amenities).filter(key => inputs.amenities[key])
@@ -48,13 +48,13 @@ const AddRoom = () => {
                 images[key] && formData.append(`images`,images[key])
             })
             
-            const {data} = await axios.post('/api/rooms',formData,{headers:{Authorization:`Bearer ${await getToken()}`}});
+            const {data} = await axios.post('/api/rooms/',formData,{headers:{Authorization:`Bearer ${await getToken()}`}});
 
             if(data.success){
                 toast.success(data.message);
                 setInputs({
                     roomType:'',
-                    pricePerNght:0,
+                    pricePerNight:0,
                     amenities:{
                         'Free Wi-Fi':false,
                         'Free Brekfast':false,
@@ -65,13 +65,15 @@ const AddRoom = () => {
                 })
                 setImages({1 : null,2 : null,3 : null,4:null})
             }else{
-                toast.error(data.message)
+                // toast.error(data.message)
+                toast.error("error at onSubmit handler")
             }
 
 
 
         } catch (error) {
-            toast.error(error.message)
+            // toast.error(error.message)
+            toast.error("error at catch of onSubmithandler") 
         }
         finally{
             setLoading(false)
@@ -84,7 +86,7 @@ const AddRoom = () => {
 
   return (
     
-        <form onSubmit={onSubmitHandler}>
+        <form onSubmit={onSubmitHandler} >
             <Title align='left' font='outfit' title='Add Room' subTitle='Fill in the details carefully and accurate room details,pricing and amenities,to enhance he user booking experince'/>
             {/* {Upload area forimgaes} */}
             <p className='text-gray-800 mt-10'>Images</p>
@@ -120,9 +122,9 @@ const AddRoom = () => {
                         type="number" 
                         placeholder='0' 
                         className='border border-gray-300 mt-1 rounded p-2 w-24' 
-                        value={isNaN(inputs.pricePerNght) ? '' : inputs.pricePerNght} 
+                        value={isNaN(inputs.pricePerNight) ? '' : inputs.pricePerNight} 
                         onChange={(e)=>(
-                            setInputs({...inputs, pricePerNght: e.target.valueAsNumber})
+                            setInputs({...inputs, pricePerNight: e.target.valueAsNumber})
                         )}
                     />
                 </div>
@@ -140,8 +142,8 @@ const AddRoom = () => {
                         </div>  
                     ))}
             </div>
-            <button className='bg-[#2563EB] text-white px-8 rounded py-2 mt-8 cursor-pointer' type='submit'>
-                Add Room
+            <button className='bg-[#2563EB] text-white px-8 rounded py-2 mt-8 cursor-pointer' type='submit' disabled={loading}>
+                { loading ? 'Adding...' : 'Add Room' }
             </button>
         </form>
     

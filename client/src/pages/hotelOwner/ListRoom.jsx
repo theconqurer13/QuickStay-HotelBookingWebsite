@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
 import { roomsDummyData } from '../../assets/assets';
 import Title from '../../components/Title';
-
+const {useAppContext} 
 const ListRoom = () => {
     const [rooms, setRooms] = useState(roomsDummyData);
+    const {axios,getTocken,user} = useAppContext()
   return (
     <div>
         <Title align='left' font='outfit' title='Room Listing' subTitle='View, edit, or manae all listed roomsKeep the information up-to-date to provide the best experience for users.'/>
