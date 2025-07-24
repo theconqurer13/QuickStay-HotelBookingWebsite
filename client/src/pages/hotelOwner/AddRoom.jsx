@@ -31,7 +31,7 @@ const AddRoom = () => {
     const onSubmitHandler = async (e)=>{
         e.preventDefault()
         // check if all inputs are filled
-        if(!inputs.roomType || !inputs.pricePerNght || !inputs.amenities || !Object.values(images).some(image => image)){
+        if(!inputs.roomType || !inputs.pricePerNight || !inputs.amenities || !Object.values(images).some(image => image)){
             toast.error("Please fill all the fields")
         }
         setLoading(true);
