@@ -1,13 +1,32 @@
 import React, { useState } from 'react'
 import Title from '../../components/Title'
-import { assets, dashboardDummyData } from '../../assets/assets'
+import { useAppContext } from '../../context/AppContext'
+import { useEffect } from 'react'
 
 const Dashboard = () => {
-    const [data, setData] = useState({
+    const {currency,user,getToken,toast,axios} = useAppContext();
+    const [dashboardData, setdashboardData] = useState({
         bookings:[],
         totalBookings:0,
-        totalRevenue:0
+        totalRevenue:0,
     });
+
+    const fetchDashboardData = async()=>{
+        try {
+            const {data} = await axios.get('/api/bookings/hotel',{headers:{Authorization:`Bearer ${await getToken()}`}});
+            if(data.success){
+                setdashboardData(data.dashboardData)
+            }else{
+                toast.error(data.message);
+            }
+        } catch (error) {
+            toast.error(error.message)
+        }
+    }
+    useEffect(()=>{
+        fetchDashboardData();
+    },[]);
+
   return (
     <div>
         <Title align='left' font="outfit" title = 'Dashboard' subTitle='Monitor your room listings, track bookigs and analyze revenue-all in one place. Stay updated with real-time insights to ensure smooth operations.'/>
@@ -18,7 +37,7 @@ const Dashboard = () => {
                 <img src={assets.totalBookingIcon} alt="" className='max-sm:hidden h-10'/>
                 <div className='flex flex-col sm:ml-4 font-medium'>
                     <p className='text-[#2563EB] text-lg'>Total Bookings</p>
-                    <p className='text-neutral-400 text-base'>{data.totalBookings}</p>
+                    <p className='text-neutral-400 text-base'>{dashboardData.totalBookings}</p>
                 </div>
             </div>
             {/* {Total revenue} */}
@@ -26,7 +45,7 @@ const Dashboard = () => {
                 <img src={assets.totalBookingIcon} alt="" className='max-sm:hidden h-10'/>
                 <div className='flex flex-col sm:ml-4 font-medium'>
                     <p className='text-[#2563EB] text-lg'>Total Revenue</p>
-                    <p className='text-neutral-400 text-base'>${data.totalRevenue}</p>
+                    <p className='text-neutral-400 text-base'>{currency}{dashboardData.totalRevenue}</p>
                 </div>
             </div>
 
@@ -47,7 +66,7 @@ const Dashboard = () => {
                         </tr>
                     </thead>
                     <tbody className='text-md'>
-                        {data.bookings.map((item,index)=>(
+                        {Array.isArray(dashboardData.bookings) && dashboardData.bookings.map((item,index)=>(
                             <tr key={index}>
                                 <td className='py-3 px-4 text-gray-700 border-t border-gray-300'>
                                     {item.user.username}
@@ -56,11 +75,11 @@ const Dashboard = () => {
                                     {item.room.roomType}
                                 </td>
                                  <td className='py-3 px-4 text-gray-700 border-t border-gray-300 text-center'>
-                                    ${item.totalPrice}
+                                    {currency}{item.totalPrice}
                                 </td>
                                  <td className='py-3 px-4 text-gray-700 border-t border-gray-300 text-center'>
                                     <button className={`py-1 px-3 text-xs rounded-full ms-auto 
-                                     ${item.isPaid ? 'bg-green-200 text-green-600' : 'bg-amber-200 text-yelow-600'}`}>
+                                     ${item.isPaid ? 'bg-green-200 text-green-600' : 'bg-amber-200 text-yellow-600'}`}>
                                         {item.isPaid ? "Completed" : "Pending"}
                                     </button>
                                 </td>
