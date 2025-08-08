@@ -1,17 +1,27 @@
 import React, { useState,useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { assets, facilityIcons, roomCommonData, roomsDummyData } from '../assets/assets';
+import { assets, facilityIcons, roomCommonData } from '../assets/assets';
 import StartRating from '../components/StartRating';
+import { useAppContext } from '../context/AppContext';
 
 const RoomDetails = () => {
     const {id} = useParams(null);
+    const {rooms,getToken,axios,navigate} = useAppContext();
     const [room,setRoom] = useState(null);
-    const [mainImage,setMainImage] = useState(null);    
+    const [mainImage,setMainImage] = useState(null);   
+    const [checkInDate,setCheckInDate] = useState(null); 
+    const [checkOutDate,setCheckOutDate] = useState(null); 
+
+    const [guests,setGuests] = useState(1);
+
+    const [isAvailable,setIsAvailable] = useState(false);
+
+
     useEffect(()=>{
-        const room = roomsDummyData.find((room)=>room._id === id);
+        const room = rooms.find((room)=>room._id === id);
         room && setRoom(room)
         room && setMainImage(room.images[0])
-    },[])
+    },[rooms])
   return room && (
     <div className='py-28 md:py-35 px-4 md:px-16 lg:px-24 xl:px-32'>
         {/* room detailes */}

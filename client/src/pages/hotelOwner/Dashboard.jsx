@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import Title from '../../components/Title'
 import { useAppContext } from '../../context/AppContext'
 import { useEffect } from 'react'
-
+import { assets } from '../../assets/assets'
 const Dashboard = () => {
     const {currency,user,getToken,toast,axios} = useAppContext();
     const [dashboardData, setdashboardData] = useState({
