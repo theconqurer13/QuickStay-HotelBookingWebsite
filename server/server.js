@@ -21,7 +21,6 @@ const app = express();
 
 // IMPORTANT: This raw body parser for the webhook endpoint must come 
 // BEFORE express.json() and the clerkMiddleware()
-app.use("/api/clerk/webhooks", bodyParser.raw({ type: "*/*" }));
 
 // Enable CORS for all routes
 app.use(cors());
