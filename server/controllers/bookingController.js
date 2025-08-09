@@ -1,7 +1,7 @@
 import Booking from "../models/Booking.js"
 import Room from "../models/Room.js";
 import Hotel from "../models/Hotel.js";
-import transporter from "../config/nodeMailer.js";
+import transporter from "../config/nodemailer.js";
 
 
     // Fucntion to check availability of room
