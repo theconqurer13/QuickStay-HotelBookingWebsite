@@ -23,6 +23,7 @@ const app = express();
 // BEFORE express.json() and the clerkMiddleware()
 
 // Enable CORS for all routes
+app.use("/api/clerk/webhooks", clerkrouter);
 app.use(cors());
 
 // Parse JSON bodies
@@ -42,7 +43,7 @@ app.get('/', (req, res) => {
 });
 
 // Clerk Webhook route
-app.use("/api/clerk/webhooks", clerkrouter);
+
 
 // Your application-specific routes
 // The `protect` middleware inside these routes will now work correctly
