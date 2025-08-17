@@ -143,7 +143,7 @@ const AllRooms = () => {
                         scrollTo(0,0);
                     }}
                      src={room.images[0]} alt="hotel-img" title='View Room Details' className='max-h-65 md:w-1/2 rounded-xl shadow-lg object-cover cursor-pointer'/>
-                    <div>
+                    <div className='md:w-1/2 flex flex-col gap-2'>
                         <p className='text-gray-500'>{room.hotel.city}</p>
                         <p 
                           onClick={()=>{navigate(`/rooms/${room._id}`);
