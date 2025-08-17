@@ -47,7 +47,7 @@ const RoomDetails = () => {
         try {
             e.preventDefault();
             if(!isAvailable){
-                return checkAvailability();
+                return await checkAvailability();
             }else{
                 const {data} = await axios.post('/api/bookings/book',{room:id,checkInDate,checkOutDate,guests,paymentMethod: "Pay At Hotel"},{
                     headers:{
