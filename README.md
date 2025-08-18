@@ -6,6 +6,9 @@ A full‑stack hotel booking platform built with React (Vite) and Express/MongoD
 - **Client**: React + Vite, React Router, Clerk, Axios, Tailwind CSS, React Hot Toast
 - **Server**: Node.js, Express, Mongoose, Multer, Cloudinary, Stripe, Nodemailer, Clerk
 
+### Preview
+<img src="client/src/assets/heroImage.png" alt="Landing page - QuickStay" />
+
 ### Monorepo layout
 ```
 HOTEL BOOKING/
