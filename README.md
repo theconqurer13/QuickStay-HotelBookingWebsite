@@ -2,6 +2,9 @@
 
 A full‑stack hotel booking platform built with React (Vite) and Express/MongoDB. It supports Clerk authentication, hotel owner room management, Stripe payments, Cloudinary image uploads, and email notifications.
 
+### Live Demo
+[QuickStay on Vercel](https://quick-stay-hotel-booking-website-8x.vercel.app/)
+
 ### Tech stack
 - **Client**: React + Vite, React Router, Clerk, Axios, Tailwind CSS, React Hot Toast
 - **Server**: Node.js, Express, Mongoose, Multer, Cloudinary, Stripe, Nodemailer, Clerk
