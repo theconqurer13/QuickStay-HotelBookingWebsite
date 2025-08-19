@@ -1,34 +1,47 @@
-import stripe from 'stripe';
+import Stripe from 'stripe';
 import Booking from '../models/Booking.js'
-// API to handel stripe webhooks
+// API to handle Stripe webhooks
 export const stripeWebhooks = async (req, res) => {
-    // stripe Gateway initialize
-    const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY);
-    const sig = request.headers['stripe-signature'];
+    const stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY);
+    const sig = req.headers['stripe-signature'];
     let event;
 
     try {
-        event = stripeInstance.webhoooks.constructEvent(req.body,sig,process.env.STRIPE_WEBHOOK_SECRET);
-
+        event = stripeInstance.webhooks.constructEvent(
+            req.body,
+            sig,
+            process.env.STRIPE_WEBHOOK_SECRET
+        );
     } catch (error) {
-        res.status(400).send(`Webhook Error:${err.message}`);
-
+        console.error('Webhook signature verification failed:', error.message);
+        return res.status(400).send(`Webhook Error: ${error.message}`);
     }
 
-    // handel the event
-    if(event.type === 'payment_intent.succeeded'){
-        const paymentIntent = event.data.object;
-        const paymentIntentId = paymentIntent.id;
+    try {
+        // Handle the event
+        if (event.type === 'checkout.session.completed') {
+            const session = event.data.object;
+            const bookingId = session.metadata?.bookingId;
+            if (bookingId) {
+                await Booking.findByIdAndUpdate(bookingId, { isPaid: true, paymentMethod: 'Stripe' });
+            }
+        } else if (event.type === 'payment_intent.succeeded') {
+            const paymentIntentId = event.data.object.id;
+            const sessions = await stripeInstance.checkout.sessions.list({
+                payment_intent: paymentIntentId,
+                limit: 1,
+            });
+            const bookingId = sessions.data?.[0]?.metadata?.bookingId;
+            if (bookingId) {
+                await Booking.findByIdAndUpdate(bookingId, { isPaid: true, paymentMethod: 'Stripe' });
+            }
+        } else {
+            console.log('Unhandled event type:', event.type);
+        }
 
-        const session = await stripeInstance.checkout.sessions.list({
-            payment_intent:paymentIntentId,
-        });
-
-        const {bookingId} = session.data[0].metadata;
-        // mark payment as Paid
-        await Booking.findByIdAndUpdate(bookingId,{isPaid:true,paymentMethod:"Stripe"} )
-    }else{
-        console.log("Unhandeled event type:",event.type)
+        res.json({ received: true });
+    } catch (error) {
+        console.error('Webhook processing error:', error);
+        res.status(500).json({ received: false });
     }
-    res.json({received:true});
 }
