@@ -11,7 +11,7 @@ import roomRouter from './routes/roomRoutes.js';
 import bookingRouter from './routes/bookingRoutes.js';
 import bodyParser from "body-parser";
 import clerkrouter from './routes/clerkRoutes.js';
-import { stripeWebhook } from './controllers/stripeWebhooks.js';
+import { stripeWebhooks } from './controllers/stripeWebhooks.js';
 
 // Initialize Database and Cloudinary
 connectDB();
@@ -28,7 +28,7 @@ app.use("/api/clerk/webhooks", clerkrouter);
 app.use(cors());
 
 // API to listen to stripe webhooks
-app.post('/api/stripe',express.raw({type:"application/json"}),stripeWebhook);
+app.post('/api/stripe',express.raw({type:"application/json"}),stripeWebhooks);
 
 
 

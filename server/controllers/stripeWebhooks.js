@@ -1,7 +1,7 @@
 import stripe from 'stripe';
 import Booking from '../models/Booking.js'
 // API to handel stripe webhooks
-export const stripeWebhook = async (req, res) => {
+export const stripeWebhooks = async (req, res) => {
     // stripe Gateway initialize
     const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY);
     const sig = request.headers['stripe-signature'];
@@ -28,7 +28,7 @@ export const stripeWebhook = async (req, res) => {
         // mark payment as Paid
         await Booking.findByIdAndUpdate(bookingId,{isPaid:true,paymentMethod:"Stripe"} )
     }else{
-        console.log("Unhadeled event type:",event.type)
+        console.log("Unhandeled event type:",event.type)
     }
     res.json({received:true});
 }
